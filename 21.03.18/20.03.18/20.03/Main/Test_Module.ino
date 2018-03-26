@@ -149,7 +149,7 @@ uint8_t setupModule(){
   Serial.begin(9600);
   Wire.begin();
   //Server_Mega.begin();
-  Serial.println("initialization failed!");
+  
   pinMode(LED_1, OUTPUT);
   pinMode(LED_2, OUTPUT);
   pinMode(LED_3, OUTPUT);
@@ -171,15 +171,19 @@ uint8_t setupModule(){
  *                         Hàm truyền kiểm tra Uno
  *******************************************************/
  void CheckUno(){
+  Serial.println("Phần kiểm tra checkUno: ");
   _countISR = 0;
   byte type = 0;
   for (byte uno = 0; uno < Number_Uno; uno++){
     _checkUno[uno] = 0;
     /* Tạo Frame gửi đi */
+    Serial.println("Tạo bản tin truyền đi");
     createFrameUART(SYMBOL_HEADER_Serial, uno+49, SYMBOL_CHECK, SYMBOL_CHECK, SYMBOL_CHECK, SYMBOL_CHECK);
     /* Gửi bản tin */
+    Serial.println("Truyền bản tin");
     sendUART();
     /* Nhấp nháy LED + Kiểm tra bộ đệm Ethernet + Serial  */
+    Serial.println("Nhấp nháy LED - hàm waitting: ");
     type = waitting(1,1,1000,2);
     if(type ==1 ){
       if(recieveCommand(type)){
@@ -289,7 +293,7 @@ void createFrameUART(byte header ,byte destination, byte data1_1, byte data1_2, 
  *                     Hàm cài đặt thời gian ngắt
  *******************************************************/
 boolean init_interrupt(int Time, byte Mode){
-  _state = 0;                                // đảm bảo chắc chắn biến 
+  //_state = 0;                                // đảm bảo chắc chắn biến 
   cli();                                    //Không cho phép ngắt toàn cục
   TCCR1A = 0;
   TCCR1B = 0;                               //thanh ghi lựa chọn xung nhịp 
@@ -326,7 +330,8 @@ boolean init_interrupt(int Time, byte Mode){
  *                         Hàm tắt ngắt
  *******************************************************/
 void start_interrupt(){
-    _state = 1;                              // báo rằng Timer bắt đầu chạy
+    Serial.println("start interrupt:");
+    _state = 0;                              // báo rằng Timer bắt đầu chạy
     TIMSK1 = (1 << TOIE1);                  // cho phép ngắt tràn (Overflow interrupt enable) 
     sei();                                  // cho phép ngắt toàn cục
 }
@@ -334,6 +339,7 @@ void start_interrupt(){
  *                         Hàm tắt ngắt
  *******************************************************/
 void end_interrupt(){
+    Serial.println("end interrupt:");
     TIMSK1 = 0;
     cli();
 }
@@ -342,8 +348,8 @@ void end_interrupt(){
  *                          Hàm ngắt  
  *******************************************************/
 ISR (TIMER1_OVF_vect) {
-    _state = 0;
-    //_countISR ++;
+    _state = 1;
+    _countISR ++;
 }
 
 /*******************************************************
@@ -351,12 +357,14 @@ ISR (TIMER1_OVF_vect) {
  *******************************************************/
  //nháy LED báo và liên tục kiểm tra bộ đệm Serial + Ethernet
 uint8_t waitting(byte times, byte type, int milis, byte mode){
+  Serial.print("waiiting:");
   _countISR = 0;                          // Khai báo biến đếm số giây delay
-
+  Serial.print(_state);
   // thời gian phải tự tính toán để phù hợp         
   while(_countISR < times){               // so sánh số lần lỗi
-    if (_state == 0){                      // Over time
-      _countISR ++;
+    if (_state == 1){                      // Over time
+      Serial.println(_state);
+      //_countISR ++;
       init_interrupt(milis, mode);        // khởi tạo các giá trị cho Timer  
       start_interrupt();
       end_interrupt();

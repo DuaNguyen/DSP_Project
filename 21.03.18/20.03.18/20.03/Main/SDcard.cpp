@@ -3,7 +3,7 @@
 extern char FileName[];// = "30-10-18.txt";
 extern unsigned int _error1[Number_Uno];
 extern unsigned int _error2[Number_Uno];
-byte typeError = 34;
+extern byte _typeError;
 
 extern int _count;
 int sizeHeader = 0;
@@ -321,7 +321,7 @@ void write_SD(long unsigned int Position){
   multi_char(0," ",7);
   
   /* Type error*/
-  multi_digit(typeError,1000);
+  multi_digit(_typeError,1000);
   
   /* Line */
   for(byte i=0; i<9; i++){
@@ -379,33 +379,33 @@ void readLastLine(){
 //  getImfor(1,3);
   /* Đọc Số thứ tự */
   SD_count  = getImfor(1,3);
-//  Serial.print("SD_count: ");
-//  Serial.println(SD_count);
+  Serial.print("SD_count: ");
+  Serial.println(SD_count);
   /* Đọc thời gian */
-//  Serial.print("Time:  ");
-  SD_hour   = getImfor(7,9);
-//  Serial.print(SD_hour);
-//  Serial.print(":");
-  SD_minute = getImfor(10,12);
-//  Serial.print(SD_minute);
-//  Serial.print(":");
+  Serial.print("Time:  ");
   SD_second = getImfor(13,15);
-//  Serial.print(SD_second);
-//  Serial.println();
+  Serial.print(SD_second);
+  Serial.print(":");
+  SD_minute = getImfor(10,12);
+  Serial.print(SD_minute);
+  Serial.print(":");
+  SD_hour   = getImfor(7,9);
+  Serial.print(SD_hour);
+  Serial.println();
   /* Đọc kiểu lỗi */
   SD_typeError = getImfor(17,24)/10;
-//  Serial.print("SD_typeError: ");
-//  Serial.println(SD_typeError);
+  Serial.print("SD_typeError: ");
+  Serial.println(SD_typeError);
   SD_lineError = getImfor(17,24)%10;
-//  Serial.print("SD_lineError: ");
-//  Serial.println(SD_lineError);
+  Serial.print("SD_lineError: ");
+  Serial.println(SD_lineError);
   /* Đọc số lượng lỗi từng line */
   for (byte i=0; i<9; i++){
     _error1[i] = getImfor((i+3)*8+1,(i+4)*8);
-//    Serial.print("error: line ");
-//    Serial.print(i+1);
-//    Serial.print("- ");
-//    Serial.println(error[i]);
+    Serial.print("error: line ");
+    Serial.print(i+1);
+    Serial.print("- ");
+    Serial.println(_error1[i]);
   }
 
   MyFile.close();
@@ -462,27 +462,30 @@ int getImfor(byte Start, byte End){
  * 
  */
 void rewriteLastline(){
-  if(typeError >= 100){
-    typeError = 0;
+  if(_typeError >= 100){
+    _typeError = 0;
   }
   _count--;
   Serial.print("Type_Error: "); 
-  Serial.print(char(typeError/10+48));
-  Serial.println(char((typeError%10)+48));
+  Serial.print(char(_typeError/10+48));
+  Serial.println(char((_typeError%10)+48));
   write_SD(sizeLine);
-  typeError ++;
+  _count ++;
 }
 //-------------------------------------------------------------------------------
 uint8_t SD_init(){
   if (!SD.begin(4)){
+    Serial.println("initialization failed!");
     return 0;
   }
   else {
     GetFileName();
     if(SD.exists(FileName)){
+      Serial.println("File exits");
       readLastLine();
     }
     else{
+      Serial.println("Create Header Files");
       CreateHeaderFile();
     }
   }

@@ -1,14 +1,14 @@
 #include "Button.h"
 
 
-    unsigned char keys[4][3] =
-    {
-      {14, 24, 34},
-      {13, 23, 33},
-      {12, 22, 32},
-      {11, 21, 31},
-    };
-    unsigned char rowPins[4] = {23, 25, 27, 29};
+unsigned char keys[4][3] =
+{
+  {14, 24, 34},
+  {13, 23, 33},
+  {12, 22, 32},
+  {11, 21, 31},
+};
+unsigned char rowPins[4] = {23, 25, 27, 29};
 unsigned char columnPins[3] = {31, 33, 35};
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, columnPins, rows, columns);

@@ -39,7 +39,7 @@ EthernetServer Server_Mega(80);
   byte _checkEthernet;
   byte _checkSD;
   int _count = 90;
-//      byte _typeError;
+  byte _typeError = 34;
   byte _turn = 0;
 //      byte _product;
 // các biến khi đọc line cuối
@@ -64,7 +64,8 @@ EthernetServer Server_Mega(80);
   byte _error = 0;
   byte _line = 0;
   
-byte product = 0;
-volatile byte _state;
-char FileName[] = "30-10-18.txt";
+  byte product = 0;
+  volatile byte _state;
+  char FileName[] = "30-10-18.txt";
+  File MyFile;
 #endif
